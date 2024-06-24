@@ -166,7 +166,7 @@ public:
 
 class Graduate :public Student
 {
-	std::string subject;
+	std::string subject;/Igor1376/Inheritance.git
 public:
 	const std::string& get_subject()const
 	{
