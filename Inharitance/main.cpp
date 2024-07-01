@@ -57,6 +57,11 @@ public:
 		cout << last_name << " " << first_name << " " << age << "y/o" << endl;
 	}
 };
+
+std::ostream& operator<<(std::ostream& os, const Human& obj)
+{
+	return os << obj.get_last_name() << " " << obj.get_first_name() << " " << obj.get_age() << " y/o";
+}
 #define STUDENT_TAKE_PARAMETERS const std::string& speciality,const std::string& group, double rating,double attendance
 #define STUDENT_GIVE_PARAMETERS  speciality, group, rating, attendance
 class Student :public Human
@@ -115,12 +120,18 @@ public:
 
 	}
 	//           Methods:
-	void info()const
+	void info()const override
 	{
 		Human::info();
 		cout << speciality << " " << group << " "<< rating << " " << attendance << endl;
 	}
 };
+
+std::ostream& operator<<(std::ostream& os, const Student& obj)
+{
+	return os<< (Human&)obj << obj.get_speciality() << " " << obj.get_group() << " " << obj.get_rating() << " " << obj.get_attendance();
+}
+
 class Teacher :public Human
 {
 	std::string speciality;
@@ -164,9 +175,14 @@ public:
 	}
 };
 
+std::ostream& operator<<(std::ostream& os, const Teacher& obj)
+{
+	return os<< (Human&)obj<<" " << obj.get_speciality() << " " << obj.get_experience() << " y/o";
+}
+
 class Graduate :public Student
 {
-	std::string subject;/Igor1376/Inheritance.git
+	std::string subject;//Igor1376/Inheritance.git
 public:
 	const std::string& get_subject()const
 	{
@@ -196,6 +212,23 @@ public:
 		cout << subject << endl;
 	}
 };
+std::ostream& operator<<(std::ostream& os, const Graduate& obj)
+{
+	return os<<(Student&)obj<<" " << obj.get_subject();
+}
+
+void Print(const Human* group[], const int n)
+{
+	cout << delimiter << endl;
+	for (int i = 0; i < n; i++)
+	{
+		//group[i]->info();
+		cout << *group[i] << endl;
+		cout << delimiter << endl;
+	}
+}
+
+
 //#define INHERITANCE_CHECK
 
 
@@ -225,6 +258,10 @@ void main()
 	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
 	{
 		//group[i]->info();
+		cout << typeid(*group[i]).name() << ":\t";
+		if (typeid(*group[i]) == typeid(Student))cout << *dynamic_cast<Student*>(group[i]) << endl; 
+		if (typeid(*group[i]) == typeid(Teacher))cout << *dynamic_cast<Teacher*>(group[i]) << endl; 
+		if (typeid(*group[i]) == typeid(Graduate))cout << *dynamic_cast<Graduate*>(group[i]) << endl; 
 		cout << *group[i] << endl;
 		cout << delimiter << endl;
 	}
