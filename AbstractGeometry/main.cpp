@@ -275,23 +275,20 @@ namespace Geometry
 			HBRUSH hBrush = CreateSolidBrush(Geometry::Color::RGB_GREEN);
 			SelectObject(hdc, hPen);
 			SelectObject(hdc, hBrush);
-			//определяем координаты треугольника
 			double x1 = a;
 			double y1 = a;
 			double x2 = x1 + a * cos(a / b);
 			double y2 = y1 + a * sin(a / b);
 			double x3 = x1 + c;
 			double y3 = y1;
-			//определяем массив точек которые образуют треугольник
 			POINT point[] =
 			{
 				{(int)x1 + 160, (int)y1 + 160},
 				{(int)x2 + 160, (int)y2 + 160},
 				{(int)x3 + 160, (int)y3 + 160}
 			};
-			// Рисуем треугольник:
+			
 			Polygon(hdc, point, 3);
-			//7) Освобождаем ресурсы:
 			DeleteObject(hPen);
 			DeleteObject(hBrush);
 
@@ -309,23 +306,20 @@ namespace Geometry
 
 }
 
-void main() //C2259 "Square" не удалось создать экземпляр                        абстрактоного класса
-//Е0322 Объект абстрактоного класса типа.квадрат не разрешён
+void main() 
 {
 	setlocale(LC_ALL, "Rus");
-	//Shape shape(Color::CONSOLE_BLUE);
+	
 	Geometry::Square square(5, Geometry::Color::CONSOLE_RED);
-	/*cout << "Длинна стороны квадрата: " << square.get_side() << endl;
-	cout << "Площадь квадрата: " << square.get_area() << endl;
-	cout << "Перимет квадрата: " << square.get_perimeter() << endl;*/
+	
 	square.info();
 
 	Geometry::Rectangle rect(10, 6, Geometry::Color::CONSOLE_DEFAULT);
 	rect.info();
 
-	Geometry::Circle circle(60, Geometry::Color::RGB_GREEN);
+	Geometry::Circle circle(60, Geometry::Color::RGB_BLUE);
 	circle.info();
 
-	Geometry::Triangle triangle(90, 90, 90, Geometry::Color::CONSOLE_DEFAULT);
+	Geometry::Triangle triangle(90, 90, 90, Geometry::Color::CONSOLE_GREEN);
 	triangle.info();
 }
