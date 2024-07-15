@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <fstream>
 #include<string>
+#include <ctime>
 using namespace std;
 
 #define delimiter "\n-------------------------\n"
@@ -10,6 +11,10 @@ using namespace std;
 
 class Human
 {
+	static const int HUMAN_TYPE_WIDTH = 10;
+	static const int LAST_NAME_WIDTH = 15;
+	static const int FIRS_NAME_WIDTH = 15;
+	static const int AGE_WIDTH = 5;
 	std::string last_name;
 	std::string first_name;
 	unsigned int age;
@@ -61,9 +66,14 @@ public:
 	{
 		return os << last_name << " " << first_name << " " << age << "y/o";
 	}
-	virtual std::ofstream& info(std::ofstream& ofs)const
+	virtual std::ofstream& write(std::ofstream& ofs) const
 	{
-		ofs.width(HUMAN_TYPE_WIDTH)
+		//ofs << strchr(typeid(*this).name(), ' ') + 1 << ":\t" << last_name << " " << first_name << " " << age;
+		ofs.width(HUMAN_TYPE_WIDTH); ofs << left << std::string(strchr(typeid(*this).name(), ' ') + 1) + ":";
+		ofs.width(LAST_NAME_WIDTH);	ofs << left << last_name;
+		ofs.width(FIRS_NAME_WIDTH);	ofs << left << first_name;
+		ofs.width(AGE_WIDTH);		ofs << left << age;
+		return ofs;
 	}
 	virtual std::ifstream& read(std::ifstream& ifs)
 	{
@@ -87,6 +97,10 @@ std::ifstream& operator>>(std::ifstream& is, Human& obj)
 #define STUDENT_GIVE_PARAMETERS  speciality, group, rating, attendance
 class Student :public Human
 {
+	static const int SPECIALITY_WIDTH = 25;
+	static const int GROUP_WIDTH = 8;
+	static const int RATING_WIDTH = 8;
+	static const int ATTENDANCE_WIDTH = 8;
 	std::string speciality;
 	std::string group;
 	double rating;
@@ -141,19 +155,42 @@ public:
 
 	}
 	//           Methods:
-	void info()const override
+	void info()const override // переопределить
 	{
 		Human::info();
-		cout << speciality << " " << group << " "<< rating << " " << attendance << endl;
+		cout << speciality << " " << group << " " << rating << " " << attendance;
 	}
-	std::ostream&  info(std::ostream& os)const override
+	std::ostream& info(std::ostream& os)const override
 	{
-		return Human::info(os) << " " 
-			<< speciality << " " << group << " " << rating << " " << attendance;
+		return Human::info(os) << " " << speciality << " " << group << " " << rating << " " << attendance;
+	}
+	std::ofstream& write(std::ofstream& ofs)const override
+	{
+		Human::write(ofs);
+		ofs.width(SPECIALITY_WIDTH); ofs << left << speciality;
+		ofs.width(GROUP_WIDTH);      ofs << left << group;
+		ofs.width(RATING_WIDTH);     ofs << left << rating;
+		ofs.width(ATTENDANCE_WIDTH); ofs << left << attendance;
+		return ofs;
+	}
+	std::ifstream& read(std::ifstream& ifs) override
+	{
+		Human::read(ifs);
+		char buffer[SPECIALITY_WIDTH]{};
+		ifs.read(buffer, SPECIALITY_WIDTH);
+		for (int i = SPECIALITY_WIDTH - 1; buffer[i] == ' '; i--)buffer[i] = 0;
+		while (buffer[0] == ' ')for (int i = 0; buffer[i]; i++)buffer[i] = buffer[i + 1];
+		this->speciality = buffer;
+		ifs >> group >> rating >> attendance;
+		return ifs;
 	}
 };
+#define TEACHER_TAKE_PARAMETERS const std::string& speciality, unsigned int experience  //брать
+#define TEACHER_GIVE_PARAMETERS speciality, experience     
 class Teacher :public Human
 {
+	static const int SPECIALITY_WIDTH = 25;
+	static const int EXPERIENCE_WIDTH = 5;
 	std::string speciality;
 	unsigned int experience;
 public:
@@ -175,7 +212,7 @@ public:
 
 	}
 	//        Constructors:
-	Teacher(HUMAN_GET_PARAMETERS, const std::string& speciality, unsigned int experience) :
+	Teacher(HUMAN_GET_PARAMETERS, TEACHER_TAKE_PARAMETERS) :
 		Human(HUMAN_GIVE_PARAMETERS)
 	{
 		set_speciality(speciality);
@@ -188,20 +225,49 @@ public:
 		cout << "TDestructor:\t" << this << endl;
 	}
 	//            Methods:
-	void info()const
+	void info()const override
 	{
 		Human::info();
-		cout << speciality << " " << experience << " years" << endl;
+		cout << speciality << " " << experience << " ";
 	}
-	std::ostream& info(std::ostream& os)const
+	std::ostream& info(std::ostream& os)const override
 	{
-		return Human::info(os)<< " " << speciality << " " << experience << " years";
+		return Human::info(os) << " " << speciality << " " << experience;
+	}
+	std::ofstream& write(std::ofstream& ofs)const override
+	{
+		Human::write(ofs);
+		ofs.width(SPECIALITY_WIDTH); ofs << speciality;
+		ofs.width(EXPERIENCE_WIDTH); ofs << experience;
+		return ofs;
+	}
+	std::ifstream& read(std::ifstream& ifs) override
+	{
+		Human::read(ifs);
+		//ifs >> speciality >> experience;
+		//std::getline(ifs, speciality);
+		const int SIZE = SPECIALITY_WIDTH;
+		char buffer[SIZE]{};
+		ifs.read(buffer, SIZE);
+		int poz = strrchr(buffer, ' ') - buffer; //String reverse character находит 
+		//buffer[poz] = 0;  //последнее вхождение указанного символа в указанной строке
+		for (int i = SIZE - 1; buffer[i] == ' '; i--)buffer[i] = 0;
+		while (buffer[0] == ' ')
+		{
+			for (int i = 0; buffer[i]; i++)buffer[i] = buffer[i + 1];
+		}
+		this->speciality = buffer;
+		ifs >> experience;
+		return ifs;
+
 	}
 };
-
+#define GRADUATE_TAKE_PARAMETERS  const std::string& speciality, int year_of_release
+#define GRADUATE_GIVE_PARAMETERS speciality, year_of_release
 class Graduate :public Student
 {
-	std::string subject;//Igor1376/Inheritance.git
+	static const int SUBJECT_WIDTH = 32;
+	std::string subject;
 public:
 	const std::string& get_subject()const
 	{
@@ -210,7 +276,6 @@ public:
 	void set_subject(const std::string& subject)
 	{
 		this->subject = subject;
-
 	}
 
 	//       Constructors:
@@ -225,17 +290,32 @@ public:
 	}
 
 	//          Methods:
-	void info()const override
+	void info() const override
 	{
 		Student::info();
 		cout << subject << endl;
 	}
-	std::ostream& info(std::ostream& os)const override
+	std::ostream& info(std::ostream& os) const override
 	{
-		return Student::info(os)<< " " << subject;
+		return Student::info(os) << subject;  
+	}
+	std::ofstream& write(std::ofstream& ofs)const override
+	{
+		Student::write(ofs);
+		ofs.width(SUBJECT_WIDTH); ofs << subject;
+		return ofs;
+	}
+	std::ifstream& read(std::ifstream& ifs)override
+	{
+		Student::read(ifs);
+		std::getline(ifs, subject);
+		return ifs;
 	}
 };
-
+/*std::ostream& operator << (std::ostream& os, const Graduate& obj)
+{
+	return os << (Human&) obj <<  " " << obj.get_subject() << " " << endl;
+}*/
 void Print(Human* group[], const int n)
 {
 	cout << delimiter << endl;
@@ -248,9 +328,10 @@ void Print(Human* group[], const int n)
 }
 void Clear(Human* group[], const int n)
 {
+	cout << "DESTRUCTOR_DELETE_OBJECTS:\t" << endl;  // На отладчике посмотрел что вызывается всегда ДЕСТРУКТОР из Базового класса Human и не вызываются из дочерних.
 	for (int i = 0; i < n; i++)
 	{
-		delete group[i];
+		delete group[i]; //добавляем в деструктор базового класса virtual.
 	}
 }
 void Save(Human* group[], const int n, const std::string& filename)
@@ -265,6 +346,16 @@ void Save(Human* group[], const int n, const std::string& filename)
 	fout.close();
 	std::string cmd = "notepad" + filename;
 	system(cmd.c_str()); //c_str() возвращает содержимое объекта std::string в виде обычной С-string(NULL Terminated line)
+}
+Human* HumanFactory(const std::string& type)
+{
+	Human* human = nullptr;
+	if (type == "Human:")human = new Human("", "", 0);
+	if (type == "Student:")human = new Student("", "", 0, "", "", 0, 0);
+	if (type == "Teacher:")human = new Teacher("", "", 0, "", 0);
+	if (type == "Graduate:")human = new Graduate("", "", 0, "", "", 0, 0, "");
+	return human;
+
 }
 Human** Load(const std::string& filename)
 {
@@ -290,6 +381,14 @@ Human** Load(const std::string& filename)
 		fin.clear();
 		fin.seekg(0);
 		cout << fin.tellg() << endl;
+		for (int i = 0; i < n; i++)
+		{
+			std::string type;
+			fin >> type;
+			group[i] = HumanFactory(type);
+			if (group[i])fin >> *group[i];
+			else continue;
+		}
 		fin.close();
 	}
 	else
@@ -322,7 +421,7 @@ void main()
 		new Teacher("White", "Walter", 50, "Chemistry", 25) ,
 		new Graduate("Schreder","Hank", 40, "Criminalistic","OBN", 80, 90, "How to catch Heisenberg"),
 		new Student("Vercetty", "Tommy", 30,"Theft","Vice",97,98)
-
+		new Teacher("Diaz", "Ricardo", 50, "Weapon distribution", 20)
 	};
 	Print(group, sizeof(group) / sizeof(group[0]));
 	Save(group, sizeof(group) / sizeof(group[0]), "group.txt");
