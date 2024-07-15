@@ -61,11 +61,27 @@ public:
 	{
 		return os << last_name << " " << first_name << " " << age << "y/o";
 	}
+	virtual std::ofstream& info(std::ofstream& ofs)const
+	{
+		ofs.width(HUMAN_TYPE_WIDTH)
+	}
+	virtual std::ifstream& read(std::ifstream& ifs)
+	{
+		ifs >> last_name >> first_name >> age;
+	}
 };
 
 std::ostream& operator<<(std::ostream& os, const Human& obj)
 {
 	return obj.info(os);
+}
+std::ofstream& operator<<(std::ofstream& ofs, const Human& obj)
+{
+	return obj.info(ofs);
+}
+std::ifstream& operator>>(std::ifstream& is, Human& obj)
+{
+	return obj.read(is);
 }
 #define STUDENT_TAKE_PARAMETERS const std::string& speciality,const std::string& group, double rating,double attendance
 #define STUDENT_GIVE_PARAMETERS  speciality, group, rating, attendance
@@ -250,9 +266,40 @@ void Save(Human* group[], const int n, const std::string& filename)
 	std::string cmd = "notepad" + filename;
 	system(cmd.c_str()); //c_str() возвращает содержимое объекта std::string в виде обычной С-string(NULL Terminated line)
 }
+Human** Load(const std::string& filename)
+{
+	Human** group = nullptr;
+	std::ifstream fin(filename);
+	if (fin.is_open())
+	{
+		int n = 0;
+		while (!fin.eof())
+		{
+			//const int SIZE = 256;
+			//char buffer[SIZE]{};
+			//fin.getline(buffer, SIZE);
 
+			std::string buffer;
+			std::getline(fin, buffer);
+			if (buffer.size() < 16)continue;
+			n++;
+		}
+		cout << "Количество строк в файле" << n << endl;
+		group = new Human * [n] {};
+		cout << fin.tellg() << endl;
+		fin.clear();
+		fin.seekg(0);
+		cout << fin.tellg() << endl;
+		fin.close();
+	}
+	else
+	{
+		std::cerr << "Error: File not found" << endl;
+	}
+		return group;
+}
 //#define INHERITANCE_CHECK
-
+//#define POLYMORPHISM
 
 void main()
 {
@@ -267,6 +314,7 @@ void main()
 	Teacher teacher("White", "Walter", 50, "Chemistry", 25);
 	teacher.info();
 #endif // 0
+#ifdef POLYMORPHISM
 	// Generalization
 	Human* group[] =
 	{
@@ -279,5 +327,7 @@ void main()
 	Print(group, sizeof(group) / sizeof(group[0]));
 	Save(group, sizeof(group) / sizeof(group[0]), "group.txt");
 	Clear(group, sizeof(group) / sizeof(group[0]));
-	
+
+#endif // POLYMORPHISM
+	Load("group.txt");
 }
