@@ -170,7 +170,142 @@ namespace Geometry
 			Shape::info();
 		}
 	};
-	
+	class Circle :public Shape
+	{
+	private:
+		double rad = 50;
+	public:
+		const double Pi = 3.14;
+		const double get_rad()const
+		{
+			return rad;
+		}
+		void set_rad(double rad)
+		{
+			this->rad = rad;
+		}
+		Circle(double rad, Color color) :Shape(color)
+		{
+			set_rad(rad);
+		}
+		virtual ~Circle() {};
+		double get_area()const override
+		{
+			return Pi * rad * rad;
+		}
+		double get_perimeter()const override
+		{
+			return(Pi * rad) * 2;
+		}
+		void draw()const override
+		{
+			HWND hwnd = GetConsoleWindow();
+			HDC hdc = GetDC(hwnd);
+			HPEN hPen = CreatePen(PS_SOLID, 9, get_color());
+			HBRUSH hBrush = CreateSolidBrush(Geometry::Color::CONSOLE_DEFAULT);
+			SelectObject(hdc, hPen);
+			SelectObject(hdc, hBrush);
+			::Ellipse(hdc, 320, 320, 320 + rad, 320 + rad);
+
+			DeleteObject(hPen);
+			DeleteObject(hBrush);
+
+			ReleaseDC(hwnd, hdc);
+		}
+
+		void info()const override
+		{
+			cout << typeid(*this).name() << endl;
+			cout << "Радиус: " << get_rad() << endl;
+			Shape::info();
+		}
+
+	};
+	class Triangle : public Shape  //Треугольик
+	{
+	private:
+		double a = 90;
+		double b = 90;
+		double c = 90;
+	public:
+		const double get_a()const
+		{
+			return a;
+		}
+		void set_a(double a)
+		{
+			this->a = a;
+		}
+		const double get_b()const
+		{
+			return b;
+		}
+		void set_b(double b)
+		{
+			this->b = b;
+		}
+		const double get_c()const
+		{
+			return c;
+		}
+		void set_c(double c)
+		{
+			this->c = c;
+		}
+		Triangle(double a, double b, double c, Color color) :Shape(color)
+		{
+			set_a(a);
+			set_b(b);
+			set_c(c);
+		}
+		virtual ~Triangle() {};
+		double get_area()const override
+		{
+			return sqrt((a + b + c) / 2 * (((a + b + c) / 2 - a) * ((a + b + c) / 2 - b) * ((a + b + c) / 2 - c)));
+		}
+		double get_perimeter()const override
+		{
+			return (a + b + c);
+		}
+		void draw()const override
+		{
+			HWND hwnd = GetConsoleWindow();
+			HDC hdc = GetDC(hwnd);
+			HPEN hPen = CreatePen(PS_SOLID, 9, get_color());
+			HBRUSH hBrush = CreateSolidBrush(Geometry::Color::RGB_GREEN);
+			SelectObject(hdc, hPen);
+			SelectObject(hdc, hBrush);
+			//определяем координаты треугольника
+			double x1 = a;
+			double y1 = a;
+			double x2 = x1 + a * cos(a / b);
+			double y2 = y1 + a * sin(a / b);
+			double x3 = x1 + c;
+			double y3 = y1;
+			//определяем массив точек которые образуют треугольник
+			POINT point[] =
+			{
+				{(int)x1 + 160, (int)y1 + 160},
+				{(int)x2 + 160, (int)y2 + 160},
+				{(int)x3 + 160, (int)y3 + 160}
+			};
+			// Рисуем треугольник:
+			Polygon(hdc, point, 3);
+			//7) Освобождаем ресурсы:
+			DeleteObject(hPen);
+			DeleteObject(hBrush);
+
+			ReleaseDC(hwnd, hdc);
+		}
+		void info()const override
+		{
+			cout << typeid(*this).name() << endl;
+			cout << "Сторона a: " << get_a() << endl;
+			cout << "Сторона b: " << get_b() << endl;
+			cout << "Сторона c: " << get_c() << endl;
+			Shape::info();
+		}
+	};
 
 }
 
@@ -188,5 +323,9 @@ void main() //C2259 "Square" не удалось создать экземпляр                       
 	Geometry::Rectangle rect(10, 6, Geometry::Color::CONSOLE_DEFAULT);
 	rect.info();
 
-	
+	Geometry::Circle circle(60, Geometry::Color::RGB_GREEN);
+	circle.info();
+
+	Geometry::Triangle triangle(90, 90, 90, Geometry::Color::CONSOLE_DEFAULT);
+	triangle.info();
 }
